@@ -53,6 +53,15 @@ segCode = [
 	0x63, # degree symbol for temperature
 	]
 
+hello_array = [
+	0x74, #h
+	0x79, #E
+	0x38, #L
+	0x38, #L
+	0x5C, #o
+	0x00, # off / blank
+	]
+
 def print_msg():
 	print 'Program is running...'
 	print 'Please press Ctrl+C to end the program...'
@@ -70,14 +79,13 @@ def hc595_shift(dat):
 	for bit in range(0, 8):	
 		GPIO.output(SDI, 0x80 & (dat << bit))
 		GPIO.output(SRCLK, GPIO.HIGH)
-		time.sleep(0.00001)
+		#time.sleep(0.001)  # comment out to remove flicker when seconds advance
 		GPIO.output(SRCLK, GPIO.LOW)
 	GPIO.output(RCLK, GPIO.HIGH)
 	time.sleep(0.00001)
 	GPIO.output(RCLK, GPIO.LOW)
 
 def countdown():
-	# Insert the future date you are counting down to:
 	diff = datetime.datetime(2018, 12, 25) - datetime.datetime.today()
 	days =  "{0:0>2}".format(diff.days)
 	hours =  "{0:0>2}".format(diff.seconds/60/60)
@@ -85,44 +93,56 @@ def countdown():
 	now = '{0}{1}{2}'.format(days,hours,minutes)
 	for foo in range(0,6):
 		hc595_shift(segCode[int(now[foo])])
-	time.sleep(9)
+	time.sleep(6)
 
-def now():
-		for bit in range(0,10):
-	                countdown=time.strftime( '%H%M%S')
-			for foo in range(0,6):
-                        	hc595_shift(segCode[int(countdown[foo])])
-               		time.sleep(1)
-
-def blank():
-		for bit in range(0, 1):
-			for foo in range(0,6):
-                        	hc595_shift(segCode[33])
-                	time.sleep(0.6)
-
-def phoebe():
-		for foo in range(0,1):
-			hc595_shift(segCode[25])
-			hc595_shift(segCode[18])
-			hc595_shift(segCode[24])
-			hc595_shift(segCode[14])
-			hc595_shift(segCode[11])
-			hc595_shift(segCode[14])
-		time.sleep(600)
+def temperature():
+        while True:
+                for i in range(0, 19):
+			hc595_shift(0x00)
+			hc595_shift(0x00)
+			hc595_shift(segCode[6])
+			hc595_shift(segCode[4])
+			hc595_shift(segCode[35])
+			hc595_shift(segCode[15])
+		time.sleep(6)
 
 def scroll_all():
         while True:
                 for i in range(0, len(segCode)):
                         hc595_shift(segCode[i])
                         time.sleep(0.8)
-def loop():
+
+def now():
+		for bit in range(0,6):
+	                countdown=time.strftime( '%H%M%S')
+			for foo in range(0,6):
+                        	hc595_shift(segCode[int(countdown[foo])])
+                	time.sleep(1)
+
+def hello():
+        while True:
+                for i in range(0, len(hello_array)):
+                        hc595_shift(hello_array[i])
+                        time.sleep(0.3)
+
+def blank():
+		for bit in range(0,1):
+			for foo in range(0,6):
+                        	hc595_shift(0x00)
+                	time.sleep(0.6)
+
+
+def loop(): # Main loop that calls the various functions
 	while True:
-		countdown()	
 		blank()
 		now()
 		blank()
-		#scroll_all()
-		#phoebe()
+		countdown()	
+#		blank()
+#		scroll_all()
+#		blank()
+#		temperature()
+#		hello()
 
 
 def destroy():   #When program ending, the function is executed. 
