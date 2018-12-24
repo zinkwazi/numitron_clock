@@ -3,9 +3,11 @@ import RPi.GPIO as GPIO
 import time
 import datetime
 
-SDI   = 11
-RCLK  = 12
-SRCLK = 13
+# Define the pins on your Raspberry Pi
+
+SER   = 11 # Serial Data input. Pin 11 on the Pi to pin 14 on 74HC595 (DS)
+RCLK  = 12 # Storage register clock pin. Pin 12 on the Pi to pin 12 on 74HC595 (STCP / LATCH)
+SRCLK = 13 # Shift register clock pin. Pin 13 on the Pi to pin 11 on 74HC595 (SHCP)
 
 # If you get garbled characters when running this script, you may have wired
 # your pins in a non-standard order. You will need to re-map the array below
@@ -14,7 +16,7 @@ SRCLK = 13
 # degree symbol for temperature display.
 # https://en.wikichip.org/wiki/seven-segment_display/representing_letters
 
-segCode = [
+segments = [
 	0x3f, #0
 	0x06, #1
 	0x5b, #2
@@ -68,16 +70,16 @@ def print_msg():
 
 def setup():
 	GPIO.setmode(GPIO.BOARD)    #Number GPIOs by its physical location
-	GPIO.setup(SDI, GPIO.OUT)
+	GPIO.setup(SER, GPIO.OUT)
 	GPIO.setup(RCLK, GPIO.OUT)
 	GPIO.setup(SRCLK, GPIO.OUT)
-	GPIO.output(SDI, GPIO.LOW)
+	GPIO.output(SER, GPIO.LOW)
 	GPIO.output(RCLK, GPIO.LOW)
 	GPIO.output(SRCLK, GPIO.LOW)
 
 def hc595_shift(dat):
 	for bit in range(0, 8):	
-		GPIO.output(SDI, 0x80 & (dat << bit))
+		GPIO.output(SER, 0x80 & (dat << bit))
 		GPIO.output(SRCLK, GPIO.HIGH)
 		#time.sleep(0.001)  # comment out to remove flicker when seconds advance
 		GPIO.output(SRCLK, GPIO.LOW)
@@ -92,7 +94,7 @@ def countdown():
 	minutes =  "{0:0>2}".format(diff.seconds/60 - (diff.seconds/60/60 * 60))
 	now = '{0}{1}{2}'.format(days,hours,minutes)
 	for foo in range(0,6):
-		hc595_shift(segCode[int(now[foo])])
+		hc595_shift(segments[int(now[foo])])
 	time.sleep(6)
 
 def temperature():
@@ -100,23 +102,23 @@ def temperature():
                 for i in range(0, 19):
 			hc595_shift(0x00)
 			hc595_shift(0x00)
-			hc595_shift(segCode[6])
-			hc595_shift(segCode[4])
-			hc595_shift(segCode[35])
-			hc595_shift(segCode[15])
+			hc595_shift(segments[6])
+			hc595_shift(segments[4])
+			hc595_shift(segments[35])
+			hc595_shift(segments[15])
 		time.sleep(6)
 
 def scroll_all():
         while True:
-                for i in range(0, len(segCode)):
-                        hc595_shift(segCode[i])
+                for i in range(0, len(segments)):
+                        hc595_shift(segments[i])
                         time.sleep(0.8)
 
 def now():
 		for bit in range(0,6):
 	                countdown=time.strftime( '%H%M%S')
 			for foo in range(0,6):
-                        	hc595_shift(segCode[int(countdown[foo])])
+                        	hc595_shift(segments[int(countdown[foo])])
                 	time.sleep(1)
 
 def hello():
