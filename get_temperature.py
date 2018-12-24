@@ -1,5 +1,12 @@
 import re
 import feedparser
+import threading
+ 
+def run_check():
+    threading.Timer(5.0, run_check).start()
+    print("HTTP Request sent.")
+ 
+run_check()
 
 temp_scale = '0' # 0 for Farenheit and 1 for Celcius
 rssfeed = 'http://rss.accuweather.com/rss/liveweather_rss.asp?metric=' + str(temp_scale) + '&locCode=93117'
