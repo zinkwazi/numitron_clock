@@ -65,8 +65,7 @@ hello_array = [
 	]
 
 def print_msg():
-	print 'Program is running...'
-	print 'Please press Ctrl+C to end the program...'
+	print 'Press Ctrl+C to exit...'
 
 def setup():
 	GPIO.setmode(GPIO.BOARD)    #Number GPIOs by its physical location
@@ -81,14 +80,13 @@ def hc595_shift(dat):
 	for bit in range(0, 8):	
 		GPIO.output(SER, 0x80 & (dat << bit))
 		GPIO.output(SRCLK, GPIO.HIGH)
-		#time.sleep(0.001)  # comment out to remove flicker when seconds advance
 		GPIO.output(SRCLK, GPIO.LOW)
 	GPIO.output(RCLK, GPIO.HIGH)
 	time.sleep(0.00001)
 	GPIO.output(RCLK, GPIO.LOW)
 
 def countdown():
-	diff = datetime.datetime(2018, 12, 25) - datetime.datetime.today()
+	diff = datetime.datetime(2018, 12, 25) - datetime.datetime.today() # Must be in the future...
 	days =  "{0:0>2}".format(diff.days)
 	hours =  "{0:0>2}".format(diff.seconds/60/60)
 	minutes =  "{0:0>2}".format(diff.seconds/60 - (diff.seconds/60/60 * 60))
@@ -115,11 +113,11 @@ def scroll_all():
                         time.sleep(0.8)
 
 def now():
-		for bit in range(0,6):
-	                countdown=time.strftime( '%H%M%S')
-			for foo in range(0,6):
-                        	hc595_shift(segments[int(countdown[foo])])
-                	time.sleep(1)
+	for bit in range(0,9):
+		current_time=time.strftime( '%H%M%S')
+		for bar in range(0,6):
+			hc595_shift(segments[int(current_time[bar])])
+		time.sleep(1)
 
 def hello():
         while True:
@@ -128,11 +126,10 @@ def hello():
                         time.sleep(0.3)
 
 def blank():
-		for bit in range(0,1):
-			for foo in range(0,6):
-                        	hc595_shift(0x00)
-                	time.sleep(0.6)
-
+	for bit in range(0,1):
+		for i in range(0,6):
+			hc595_shift(0x00)
+		time.sleep(0.6)
 
 def loop(): # Main loop that calls the various functions
 	while True:
@@ -147,10 +144,10 @@ def loop(): # Main loop that calls the various functions
 #		hello()
 
 
-def destroy():   #When program ending, the function is executed. 
+def destroy():   # Clean up all the ports used
 	GPIO.cleanup()
 
-if __name__ == '__main__': #Program starting from here 
+if __name__ == '__main__': 
 	print_msg()
 	setup() 
 	try:
