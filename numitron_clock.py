@@ -86,7 +86,7 @@ def hc595_shift(dat):
 	GPIO.output(RCLK, GPIO.LOW)
 
 def countdown():
-	diff = datetime.datetime(2018, 12, 25) - datetime.datetime.today() # Must be in the future...
+	diff = datetime.datetime(2019, 1, 1) - datetime.datetime.today() # Must be in the future...
 	days =  "{0:0>2}".format(diff.days)
 	hours =  "{0:0>2}".format(diff.seconds/60/60)
 	minutes =  "{0:0>2}".format(diff.seconds/60 - (diff.seconds/60/60 * 60))
@@ -115,9 +115,18 @@ def scroll_all():
 def now():
 	for bit in range(0,9):
 		current_time=time.strftime( '%H%M%S')
-		for bar in range(0,6):
-			hc595_shift(segments[int(current_time[bar])])
+		if int(current_time[0]) == 0:  # Don't show the leading zero in the AM
+			hc595_shift(0x00)
+			for bar in range(1,6):
+				hc595_shift(segments[int(current_time[bar])])
+		else:
+			for bar in range(0,6):
+				hc595_shift(segments[int(current_time[bar])])
 		time.sleep(1)
+
+def read_temperature(the_file):
+	f = open("temperature.txt", "r")
+	print(f.read())
 
 def hello():
         while True:
@@ -133,10 +142,10 @@ def blank():
 
 def loop(): # Main loop that calls the various functions
 	while True:
-		blank()
+#		blank()
 		now()
-		blank()
-		countdown()	
+#		blank()
+#		countdown()	
 #		blank()
 #		scroll_all()
 #		blank()
