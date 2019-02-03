@@ -2,6 +2,8 @@
 import RPi.GPIO as GPIO
 import time
 import datetime
+from random import randint
+
 
 # Define the pins on your Raspberry Pi
 SER   = 11 # Serial Data input. Pin 11 on the Pi to pin 14 on 74HC595 (DS)
@@ -99,10 +101,10 @@ def countdown():
 
 def temperature():
         #while True:
-	f = open(TEMPERATURE_DATA, "r") # Read the temperature
+	f = open(TEMPERATURE_DATA, "r") # Read the temperature file
 	the_temp=f.read()
 	
-	for x in range(0,5):
+	for x in range(0,4):
                 for i in range(0, 1):
 			hc595_shift(0x00)
 			hc595_shift(0x00)
@@ -116,7 +118,14 @@ def scroll_all():
         while True:
                 for i in range(0, len(segments)):
                         hc595_shift(segments[i])
-                        time.sleep(0.8)
+                        time.sleep(0.1)
+def scroll_random():
+        for x in range(0,1):
+                for i in range(0, (len(segments) - 28)):
+			bar = randint(1, (len(segments) - 28))
+                        hc595_shift(segments[(randint(0, bar))])
+                        #hc595_shift(segments[i])
+			time.sleep(0.08)
 
 def now():
 	for bit in range(0,8):
@@ -145,16 +154,18 @@ def blank():
 		time.sleep(0.33)
 
 def loop(): # Main loop that calls the various functions
+	blank() # Clear the tubes to start
 	while True:
-		blank() # Clear the tubes to start
 		now()
+		scroll_random()
 #		countdown()	
 #		blank()
-#		scroll_all()
+		#scroll_all()
 #		blank()
-		blank()
+	#	blank()
 		temperature()
 #		hello()
+		scroll_random()
 
 
 def destroy():   # Clean up all the ports used
