@@ -4,10 +4,12 @@ import time
 import datetime
 
 # Define the pins on your Raspberry Pi
-
 SER   = 11 # Serial Data input. Pin 11 on the Pi to pin 14 on 74HC595 (DS)
 RCLK  = 12 # Storage register clock pin. Pin 12 on the Pi to pin 12 on 74HC595 (STCP / LATCH)
 SRCLK = 13 # Shift register clock pin. Pin 13 on the Pi to pin 11 on 74HC595 (SHCP)
+
+BLANK = 2 # Nu,ber of .5 second increments to turn the tubes off for betwen functions.
+TEMPERATURE_DATA = "/home/pi/numitron_clock/temperature.txt" # Temp file location (you need write permissions for this)
 
 # If you get garbled characters when running this script, you may have wired
 # your pins in a non-standard order. You will need to re-map the array below
@@ -96,15 +98,19 @@ def countdown():
 	time.sleep(6)
 
 def temperature():
-        while True:
-                for i in range(0, 19):
+        #while True:
+	f = open(TEMPERATURE_DATA, "r") # Read the temperature
+	the_temp=f.read()
+	
+	for x in range(0,5):
+                for i in range(0, 1):
 			hc595_shift(0x00)
 			hc595_shift(0x00)
-			hc595_shift(segments[6])
-			hc595_shift(segments[4])
+			hc595_shift(segments[int(the_temp[0])])
+			hc595_shift(segments[int(the_temp[1])])
 			hc595_shift(segments[35])
 			hc595_shift(segments[15])
-		time.sleep(6)
+		time.sleep(1)
 
 def scroll_all():
         while True:
@@ -113,7 +119,7 @@ def scroll_all():
                         time.sleep(0.8)
 
 def now():
-	for bit in range(0,9):
+	for bit in range(0,8):
 		current_time=time.strftime( '%H%M%S')
 		if int(current_time[0]) == 0:  # Don't show the leading zero in the AM
 			hc595_shift(0x00)
@@ -124,9 +130,7 @@ def now():
 				hc595_shift(segments[int(current_time[bar])])
 		time.sleep(1)
 
-def read_temperature(the_file):
-	f = open("temperature.txt", "r")
-	print(f.read())
+	
 
 def hello():
         while True:
@@ -135,21 +139,21 @@ def hello():
                         time.sleep(0.3)
 
 def blank():
-	for bit in range(0,1):
+	for bit in range(0,BLANK):
 		for i in range(0,6):
 			hc595_shift(0x00)
-		time.sleep(0.6)
+		time.sleep(0.33)
 
 def loop(): # Main loop that calls the various functions
 	while True:
-#		blank()
+		blank() # Clear the tubes to start
 		now()
-#		blank()
 #		countdown()	
 #		blank()
 #		scroll_all()
 #		blank()
-#		temperature()
+		blank()
+		temperature()
 #		hello()
 
 

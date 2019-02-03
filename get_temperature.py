@@ -2,19 +2,18 @@ import re
 import feedparser
 import threading
  
-def run_check():
-    threading.Timer(5.0, run_check).start()
-    print("HTTP Request sent.")
- 
-run_check()
-
 temp_scale = '0' # 0 for Farenheit and 1 for Celcius
+
+# Get temperature from AccuWeather
+# Example: http://rss.accuweather.com/rss/liveweather_rss.asp?metric=0&locCode=93117
 rssfeed = 'http://rss.accuweather.com/rss/liveweather_rss.asp?metric=' + str(temp_scale) + '&locCode=93117'
 
 regex = re.compile('(Currently:.*?)\:*: (\w+)')
 
 def output_temp_numbers(entry):
-    print entry
+    #print entry
+    f = open("/home/pi/numitron_clock/temperature.txt", "w")
+    f.write(entry)
 
 foo = feedparser.parse(rssfeed) # Read page 
 for post in foo.entries:  # Read one RSS entry at a time
