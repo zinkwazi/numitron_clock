@@ -14,6 +14,7 @@ BLANK = 2 # Nu,ber of .5 second increments to turn the tubes off for betwen func
 TEMPERATURE_DATA = "/home/pi/numitron_clock/temperature.txt" # Temp file location (you need write permissions for this)
 
 # Countdown target - will display all zeros when done or if in the past.
+# NOTE: Target must be less than 99 days away :)
 COUNTDOWN_YEAR = 2019
 COUNTDOWN_MONTH = 2 
 COUNTDOWN_DAY = 4
