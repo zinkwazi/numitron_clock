@@ -13,6 +13,11 @@ SRCLK = 13 # Shift register clock pin. Pin 13 on the Pi to pin 11 on 74HC595 (SH
 BLANK = 2 # Nu,ber of .5 second increments to turn the tubes off for betwen functions.
 TEMPERATURE_DATA = "/home/pi/numitron_clock/temperature.txt" # Temp file location (you need write permissions for this)
 
+# Countdown target - will display all zeros when done or if in the past.
+COUNTDOWN_YEAR = 2019
+COUNTDOWN_MONTH = 2 
+COUNTDOWN_DAY = 4
+
 # If you get garbled characters when running this script, you may have wired
 # your pins in a non-standard order. You will need to re-map the array below
 # to match your pins. See this URL to help get started using the reference. 
@@ -72,7 +77,7 @@ def print_msg():
 	print 'Press Ctrl+C to exit...'
 
 def setup():
-	GPIO.setmode(GPIO.BOARD)    #Number GPIOs by its physical location
+	GPIO.setmode(GPIO.BOARD)    #Number GPIOs by physical location
 	GPIO.setup(SER, GPIO.OUT)
 	GPIO.setup(RCLK, GPIO.OUT)
 	GPIO.setup(SRCLK, GPIO.OUT)
@@ -80,7 +85,7 @@ def setup():
 	GPIO.output(RCLK, GPIO.LOW)
 	GPIO.output(SRCLK, GPIO.LOW)
 
-def hc595_shift(dat):
+def hc595_shift(dat): # Shift register function - push the data to the tubes
 	for bit in range(0, 8):	
 		GPIO.output(SER, 0x80 & (dat << bit))
 		GPIO.output(SRCLK, GPIO.HIGH)
@@ -89,18 +94,22 @@ def hc595_shift(dat):
 	time.sleep(0.00001)
 	GPIO.output(RCLK, GPIO.LOW)
 
-def countdown():
-	diff = datetime.datetime(2019, 1, 1) - datetime.datetime.today() # Must be in the future...
-	days =  "{0:0>2}".format(diff.days)
-	hours =  "{0:0>2}".format(diff.seconds/60/60)
-	minutes =  "{0:0>2}".format(diff.seconds/60 - (diff.seconds/60/60 * 60))
-	now = '{0}{1}{2}'.format(days,hours,minutes)
-	for foo in range(0,6):
-		hc595_shift(segments[int(now[foo])])
-	time.sleep(6)
+def countdown(): # Count down the days, hours and minutes until target date
+	if (datetime.datetime(COUNTDOWN_YEAR, COUNTDOWN_MONTH, COUNTDOWN_DAY)) < (datetime.datetime.today()):
+		for foo in range(0,6):
+			hc595_shift(segments[0]) # Time is in the past - set tubes to display 0
+		time.sleep(6)
+	else:
+		diff = datetime.datetime(COUNTDOWN_YEAR, COUNTDOWN_MONTH, COUNTDOWN_DAY) - datetime.datetime.today() 
+		days =  "{0:0>2}".format(diff.days)
+		hours =  "{0:0>2}".format(diff.seconds/60/60)
+		minutes =  "{0:0>2}".format(diff.seconds/60 - (diff.seconds/60/60 * 60))
+		now = '{0}{1}{2}'.format(days,hours,minutes)
+		for foo in range(0,6):
+			hc595_shift(segments[int(now[foo])])
+		time.sleep(6)
 
-def temperature():
-        #while True:
+def temperature(): # Display the temperature collected by get_temperature.py
 	f = open(TEMPERATURE_DATA, "r") # Read the temperature file
 	the_temp=f.read()
 	
@@ -114,20 +123,21 @@ def temperature():
 			hc595_shift(segments[15])
 		time.sleep(1)
 
-def scroll_all():
-        while True:
+def scroll_all(): # Displays all characters in the array
+        for x in range(0,1):
                 for i in range(0, len(segments)):
                         hc595_shift(segments[i])
-                        time.sleep(0.1)
-def scroll_random():
+                        time.sleep(1)
+
+def scroll_random(): # Quickly flash characters as a divider between other functions
         for x in range(0,1):
-                for i in range(0, (len(segments) - 28)):
-			bar = randint(1, (len(segments) - 28))
+                for i in range(0, 9): # How many digits to flash
+			bar = randint(1, (len(segments) - 1)) # Pick a random character from the array
                         hc595_shift(segments[(randint(0, bar))])
                         #hc595_shift(segments[i])
-			time.sleep(0.08)
+			time.sleep(0.07)
 
-def now():
+def now(): # Display the current time
 	for bit in range(0,8):
 		current_time=time.strftime( '%H%M%S')
 		if int(current_time[0]) == 0:  # Don't show the leading zero in the AM
@@ -139,15 +149,13 @@ def now():
 				hc595_shift(segments[int(current_time[bar])])
 		time.sleep(1)
 
-	
-
-def hello():
-        while True:
+def hello(): # Scroll hello across the displays
+        for x in range(0,5):
                 for i in range(0, len(hello_array)):
                         hc595_shift(hello_array[i])
                         time.sleep(0.3)
 
-def blank():
+def blank(): # Turn off all tubes
 	for bit in range(0,BLANK):
 		for i in range(0,6):
 			hc595_shift(0x00)
@@ -155,20 +163,20 @@ def blank():
 
 def loop(): # Main loop that calls the various functions
 	blank() # Clear the tubes to start
-	while True:
+	while True: # Uncomment lines below to run the various functions
 		now()
 		scroll_random()
-#		countdown()	
-#		blank()
-		#scroll_all()
-#		blank()
-	#	blank()
 		temperature()
-#		hello()
 		scroll_random()
+		countdown()	
+		scroll_random()
+#		blank()
+#		scroll_all()
+#		hello()
+#		blank()
 
 
-def destroy():   # Clean up all the ports used
+def destroy():   # Clean up the GPIO pins gracefully
 	GPIO.cleanup()
 
 if __name__ == '__main__': 

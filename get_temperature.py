@@ -1,23 +1,25 @@
 import re
 import feedparser
 import threading
- 
+
+temperature_file_path = "/home/pi/numitron_clock/temperature.txt"
 temp_scale = '0' # 0 for Farenheit and 1 for Celcius
-zip_code = "93117"
+zip_code = "93117" # Zip code or city
+#zip_code = "New%20York" # Example - use %20 for spaces in city names
 
 # Get temperature from AccuWeather
 # Example URL: http://rss.accuweather.com/rss/liveweather_rss.asp?metric=0&locCode=93117
-rssfeed = 'http://rss.accuweather.com/rss/liveweather_rss.asp?metric=' + str(temp_scale) + '&locCode=' + zip_code
-regex = re.compile('(Currently:.*?)\:*: (\w+)')
+rssfeed = 'http://rss.accuweather.com/rss/liveweather_rss.asp?metric='+ temp_scale +'&locCode=' + zip_code
+regex = re.compile('(Currently:.*?)\:*: (\w+)') # Find the temperature line
 
-def output_temp_numbers(entry):
-    f = open("/home/pi/numitron_clock/temperature.txt", "w")
+def output_temp_numbers(entry): # Write temperature digits to the file
+    f = open(temperature_file_path, "w")
     f.write(entry)
 
-foo = feedparser.parse(rssfeed) # Read page 
-if foo.bozo:
+foo = feedparser.parse(rssfeed) # Read RSS page 
+if foo.bozo: # Put 00 in the file in case of error
         output_temp_numbers("00")
-exit
+	exit()
 
 for post in foo.entries:  # Read one RSS entry at a time
         try: 
@@ -28,4 +30,4 @@ for post in foo.entries:  # Read one RSS entry at a time
 	    temperature_scale = regex_match.group(2)
 	    temperature = temperature_scale.rstrip('F|C')
             output_temp_numbers(temperature)
-exit
+exit()
