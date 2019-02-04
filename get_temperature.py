@@ -17,8 +17,8 @@ def output_temp_numbers(entry): # Write temperature digits to the file
     f.write(entry)
 
 foo = feedparser.parse(rssfeed) # Read RSS page 
-if foo.bozo: # Put 00 in the file in case of error
-        output_temp_numbers("00")
+if foo.bozo: # Put xx in the file in case of error
+        output_temp_numbers("xx")
 	exit()
 
 for post in foo.entries:  # Read one RSS entry at a time

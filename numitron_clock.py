@@ -112,16 +112,18 @@ def countdown(): # Count down the days, hours and minutes until target date
 def temperature(): # Display the temperature collected by get_temperature.py
 	f = open(TEMPERATURE_DATA, "r") # Read the temperature file
 	the_temp=f.read()
-	
-	for x in range(0,4):
-                for i in range(0, 1):
-			hc595_shift(0x00)
-			hc595_shift(0x00)
-			hc595_shift(segments[int(the_temp[0])])
-			hc595_shift(segments[int(the_temp[1])])
-			hc595_shift(segments[35])
-			hc595_shift(segments[15])
-		time.sleep(1)
+	if ("x" in the_temp):
+		return None
+	else:
+		for x in range(0,4):
+			for i in range(0, 1): # Still need to account for negative and triple digit temps
+				hc595_shift(0x00)
+				hc595_shift(0x00)
+				hc595_shift(segments[int(the_temp[0])])
+				hc595_shift(segments[int(the_temp[1])])
+				hc595_shift(segments[35])
+				hc595_shift(segments[15])
+			time.sleep(1)
 
 def scroll_all(): # Displays all characters in the array
         for x in range(0,1):
