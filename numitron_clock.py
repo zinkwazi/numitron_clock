@@ -10,6 +10,7 @@ SER   = 11 # Serial Data input. Pin 11 on the Pi to pin 14 on 74HC595 (DS)
 RCLK  = 12 # Storage register clock pin. Pin 12 on the Pi to pin 12 on 74HC595 (STCP / LATCH)
 SRCLK = 13 # Shift register clock pin. Pin 13 on the Pi to pin 11 on 74HC595 (SHCP)
 
+TUBES = 6 # Either 4 or 6 depending on the number of display tubes
 BLANK = 2 # Nu,ber of .5 second increments to turn the tubes off for betwen functions.
 TEMPERATURE_DATA = "/home/pi/numitron_clock/temperature.txt" # Temp file location (you need write permissions for this)
 
@@ -142,14 +143,9 @@ def scroll_random(): # Quickly flash characters as a divider between other funct
 
 def now(): # Display the current time
 	for bit in range(0,8):
-		current_time=time.strftime( '%H%M%S')
-		if int(current_time[0]) == 0:  # Don't show the leading zero in the AM
-			hc595_shift(0x00)
-			for bar in range(1,6):
-				hc595_shift(segments[int(current_time[bar])])
-		else:
-			for bar in range(0,6):
-				hc595_shift(segments[int(current_time[bar])])
+		current_time=time.strftime('%H%M%S')
+		for bar in range(0,6):
+			hc595_shift(segments[int(current_time[bar])])
 		time.sleep(1)
 
 def hello(): # Scroll hello across the displays
@@ -171,8 +167,8 @@ def loop(): # Main loop that calls the various functions
 		scroll_random()
 		temperature()
 		scroll_random()
-		countdown()	
-		scroll_random()
+#		countdown()	
+#		scroll_random()
 #		blank()
 #		scroll_all()
 #		hello()
