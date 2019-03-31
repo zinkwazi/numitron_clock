@@ -148,31 +148,34 @@ def now(): # Display the current time
 			hc595_shift(segments[int(current_time[bar])])
 		time.sleep(1)
 
+def flash_chars(): # Flash each character on all tubes
+	for bit in range(0,19):
+		for bar in range(0,6):
+			hc595_shift(segments[bit])
+		time.sleep(0.2)
+
 def hello(): # Scroll hello across the displays
         for x in range(0,5):
                 for i in range(0, len(hello_array)):
                         hc595_shift(hello_array[i])
                         time.sleep(0.3)
 
-def blank(): # Turn off all tubes
+def blank(delay): # Turn off all tubes
 	for bit in range(0,BLANK):
 		for i in range(0,6):
 			hc595_shift(0x00)
-		time.sleep(0.33)
+		time.sleep(delay)
+		#time.sleep(0.33)
 
 def loop(): # Main loop that calls the various functions
-	blank() # Clear the tubes to start
+	blank(0.33) # Clear the tubes to start
 	while True: # Uncomment lines below to run the various functions
 		now()
 		scroll_random()
 		temperature()
-		scroll_random()
-#		countdown()	
-#		scroll_random()
-#		blank()
-#		scroll_all()
-#		hello()
-#		blank()
+		#scroll_random()
+		#blank(0.8)
+		flash_chars()
 
 
 def destroy():   # Clean up the GPIO pins gracefully
