@@ -17,8 +17,8 @@ TEMPERATURE_DATA = "/home/pi/numitron_clock/temperature.txt" # Temp file locatio
 # Countdown target - will display all zeros when done or if in the past.
 # NOTE: Target must be less than 99 days away :)
 COUNTDOWN_YEAR = 2019
-COUNTDOWN_MONTH = 2 
-COUNTDOWN_DAY = 4
+COUNTDOWN_MONTH = 12 
+COUNTDOWN_DAY = 25
 
 # If you get garbled characters when running this script, you may have wired
 # your pins in a non-standard order. You will need to re-map the array below
@@ -67,12 +67,29 @@ segments = [
 	]
 
 hello_array = [
-	0x74, #h
+	0x39, #C
+	0x76, #H
+	0x77, #A
+	0x6D, #S
 	0x79, #E
-	0x38, #L
-	0x38, #L
-	0x5C, #o
 	0x00, # off / blank
+	]
+
+oo_array = [
+	0x3F, #O
+	0x3E, #U
+	0x78, #t
+	0x6D, #S
+	0x30, #I
+	0x5e, #d
+	0x79, #E
+	0x00, # off / blank
+	0x3F, #O
+	0x73, #P
+	0x79, #E
+	0x54, #n
+	0x00, # off / blank
+	0x00 # off / blank
 	]
 
 def print_msg():
@@ -149,15 +166,21 @@ def now(): # Display the current time
 		time.sleep(1)
 
 def flash_chars(): # Flash each character on all tubes
-	for bit in range(0,19):
-		for bar in range(0,6):
+	for bit in range(0,10): # Select the characters to display
+		for bar in range(0,6): # How many (second number) tubes to display on
 			hc595_shift(segments[bit])
-		time.sleep(0.2)
+		time.sleep(0.08)
 
 def hello(): # Scroll hello across the displays
         for x in range(0,5):
                 for i in range(0, len(hello_array)):
                         hc595_shift(hello_array[i])
+                        time.sleep(0.3)
+
+def outside_open(): # Scroll hello across the displays
+        for x in range(0,5):
+                for i in range(0, len(oo_array)):
+                        hc595_shift(oo_array[i])
                         time.sleep(0.3)
 
 def blank(delay): # Turn off all tubes
@@ -173,9 +196,12 @@ def loop(): # Main loop that calls the various functions
 		now()
 		scroll_random()
 		temperature()
+		#countdown()
+		flash_chars()
+		#hello()
+		#blank(0.8)
 		#scroll_random()
 		#blank(0.8)
-		flash_chars()
 
 
 def destroy():   # Clean up the GPIO pins gracefully

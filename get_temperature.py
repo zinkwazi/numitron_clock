@@ -10,7 +10,9 @@ zip_code = "93117" # Zip code or city
 # Get temperature from AccuWeather
 # Example URL: http://rss.accuweather.com/rss/liveweather_rss.asp?metric=0&locCode=93117
 rssfeed = 'http://rss.accuweather.com/rss/liveweather_rss.asp?metric='+ temp_scale +'&locCode=' + zip_code
+#rssfeed = 'http://zinkwazi.com/tools/temperature.xml'
 regex = re.compile('(Currently:.*?)\:*: (\w+)') # Find the temperature line
+#regex = re.compile('(Currently:.*?)\:*: ((-|)\w+)') # Find the temperature line
 
 def output_temp_numbers(entry): # Write temperature digits to the file
     f = open(temperature_file_path, "w")
