@@ -142,7 +142,7 @@ def temperature(): # Display the temperature collected by get_temperature.py
 				hc595_shift(segments[int(the_temp[1])])
 				hc595_shift(segments[35])
 				hc595_shift(segments[15])
-			time.sleep(1)
+			time.sleep(0.8)
 
 def scroll_all(): # Displays all characters in the array
         for x in range(0,1):
@@ -195,8 +195,9 @@ def loop(): # Main loop that calls the various functions
 	while True: # Uncomment lines below to run the various functions
 		now()
 		scroll_random()
-		temperature()
 		#countdown()
+		#flash_chars()
+		temperature()
 		flash_chars()
 		#hello()
 		#blank(0.8)
