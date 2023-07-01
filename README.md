@@ -27,4 +27,4 @@ Send fixes, questions or suggestions :)
 Greg Lawler 
 https://zinkwazi.com
 
- ![Video](https://github.com/zinkwazi/numitron_clock/blob/master/numitron.mov?raw=true)
+https://github.com/zinkwazi/numitron_clock/blob/master/numitron.mov?raw=true
